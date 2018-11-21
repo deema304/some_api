@@ -1,0 +1,6 @@
+const config = require("./config/config.js");
+const {host, user, password, database} = config.mysql;
+
+module.exports = {
+ "url": `mysql://${user}:${password}@${host}/${database}`
+};
