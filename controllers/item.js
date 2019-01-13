@@ -10,6 +10,7 @@ class ItemController {
 
   async init() {
     logger.info('ItemController inited');
+    await this._image.init();
   }
 
   async searchItem(req, res) {
@@ -57,6 +58,18 @@ class ItemController {
       const item = await this._mysql.getModel('Item').create(req.body);
 
       return res.status(200).json(item);
+    } catch (e) {
+      return res.status(422).send(e.message);
+    }
+  }
+
+  async getImageByName(req, res) {
+    const fileName = req.params.name;
+
+    try {
+      const stream = await this._image.getImage(fileName);
+
+      stream.pipe(res);
     } catch (e) {
       return res.status(422).send(e.message);
     }

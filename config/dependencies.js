@@ -41,6 +41,14 @@ module.exports = {
   },
   'Image': {
     'class': './components/awesomeImageStorage.js',
+    'args': ['GridFS']
+  },
+  'Mongo': {
+    'class': './components/mongodb.js',
     'args': []
+  },
+  'GridFS': {
+    'class': './components/gridfs.js',
+    'args': ['Mongo']
   }
 };

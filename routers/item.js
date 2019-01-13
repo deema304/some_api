@@ -19,6 +19,7 @@ class Item {
 
     router.get("/", this._auth.validateToken, this._controller.searchItem.bind(this._controller));
     router.get("/:id", this._auth.validateToken, this._controller.getItemById.bind(this._controller));
+    router.get("/:name/image", this._auth.validateToken, this._controller.getImageByName.bind(this._controller));
     router.put("/:id", this._auth.validateToken, this._controller.updateItemById.bind(this._controller));
     router.delete("/:id", this._auth.validateToken, this._controller.deleteItemById.bind(this._controller));
     router.put("/", this._auth.validateToken, this._controller.createItem.bind(this._controller));

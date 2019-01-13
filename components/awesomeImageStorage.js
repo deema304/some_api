@@ -1,21 +1,28 @@
 const fs = require('fs');
-const multer = require('multer');
-const Storage = multer.diskStorage({
-  destination: function(req, file, callback) {
-    callback(null, './images');
-  },
-  filename: function(req, file, callback) {
-    callback(null, `${file.fieldname}_${Date.now()}_${file.originalname}`);
-  }
-});
-const upload = multer({storage: Storage}).single('image');
+const multer  = require('multer');
+const gfsStorage = require('multer-gridfs-storage');
 
 class AwesomeImageStorage {
-  constructor() {}
+  constructor(gridFs) {
+    this._gridFs = gridFs;
+  }
+
+  async init() {
+    await this._gridFs.init();
+
+    const storage = gfsStorage({
+      gfs: this._gridFs.getGfs(),
+      url: 'mongodb://localhost:27017/some_api',
+      filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + Date.now() + '.');
+      }
+    });
+    this._upload = multer({ storage: storage }).single('image');
+  }
 
   saveImage(req, res) {
     return new Promise((resolve, reject) => {
-      upload(req, res, (err) => {
+      this._upload(req, res, (err) => {
         if (err) {
           return reject(err.message);
         }
@@ -25,20 +32,12 @@ class AwesomeImageStorage {
     });
   }
 
-  getImage(fileName) {
-    return fs.readFileSync(fileName);
+  async getImage(fileName) {
+    return await this._gridFs.getFileByName(fileName);
   }
 
-  removeImage(fileName) {
-    return new Promise((resolve, reject) => {
-      fs.unlink(`./images/${fileName}`, (e) => {
-        if(e) {
-          return reject(e);
-        }
-
-        return resolve();
-      })
-    });
+  async removeImage(fileName) {
+    return await this._gridFs.removeFileByName(fileName);
   }
 }
 
